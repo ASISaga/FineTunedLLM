@@ -5,34 +5,33 @@
 # Iterative Fine-Tuning 
 # Start with a Small Subset:** Select a small subset of your domain-specific text for the initial fine-tuning.
 # Fine-Tune the Model:** Fine-tune the model on this subset and save the intermediate model.
-
-# import PyTorch library for custom dataset
-import torch
-
 # Import necessary libraries from the transformers and datasets packages
 from transformers import AutoTokenizer, AutoModelForCausalLM, Trainer, TrainingArguments
 from transformers import Seq2SeqTrainer, Seq2SeqTrainingArguments, AutoModelForSeq2SeqLM
 
 from datasets import Dataset
-#import faiss  # FAISS library for efficient similarity search
-from config import model_name, MODEL_DIR
+# import faiss  # FAISS library for efficient similarity search
+from config import MODEL_NAME, MODEL_DIR
+
+from DomainDataset import DomainDataset
+from FineTunedLLM.LLM.Tokenizer import Tokenizer
 
 # Define the DocumentTrainer class
 class DocumentTrainer:
-    def __init__(self, model_name=model_name, output_dir="./results"):
+    def __init__(self, model_name=MODEL_NAME, model_dir=MODEL_DIR):
         """
         Initialize the DocumentTrainer with the specified model and output directory.
         Args:
             model_name (str): The name of the pretrained model to use.
-            output_dir (str): The directory to save training outputs.
+            model_dir (str): The directory to save training outputs.
         """
         # Initialize the model and tokenizer
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.tokenizer = Tokenizer.from_pretrained(model_name)  # Use Tokenizer class
         self.model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
         
         # Define training arguments for Seq2SeqTrainer
         self.training_args = Seq2SeqTrainingArguments(
-            output_dir=output_dir,               # Directory to save training outputs
+            output_dir=model_dir,               # Directory to save training outputs
             evaluation_strategy="epoch",         # Evaluate the model at the end of each epoch
             learning_rate=5e-5,                  # Learning rate for training
             per_device_train_batch_size=4,       # Batch size for training
@@ -46,16 +45,6 @@ class DocumentTrainer:
         # Initialize an empty dataset to store combined documents
         self.combined_dataset = None
 
-    def preprocess_function(self, document):
-        """
-        Preprocess a document by tokenizing and truncating it to fit the model's input size.
-        Args:
-            document (str): The document text to preprocess.
-        Returns:
-            model_inputs (dict): A dictionary containing tokenized inputs.
-        """
-        model_inputs = self.tokenizer(document, max_length=1024, truncation=True, return_tensors="pt")
-        return model_inputs
     
     def add_document_to_dataset(self, document_text):
         """
@@ -64,7 +53,7 @@ class DocumentTrainer:
             document_text (str): The document text to add.
         """
         # Preprocess the new document
-        tokenized_document = self.preprocess_function(document_text)
+        tokenized_document = self.tokenizer.preprocess_function(document_text)  # Use Tokenizer's preprocess_function
         
         # Create a new dataset for the document
         new_dataset = Dataset.from_dict({
@@ -116,54 +105,29 @@ class DocumentTrainer:
         combined_document = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
         return combined_document
 
-# Example usage
-documents = ["First document text...", "Second document text...", "Third document text..."]
 
-# Initialize the DocumentTrainer
-trainer = DocumentTrainer()
+    def progressiveFineTuning(self, additional_texts):
+        # Progressive Fine-Tuning:
+        ## Gradually Increase Data Size:** Gradually include more domain-specific text in subsequent iterations of fine-tuning.
+        ## Adjust Training Parameters:** Adjust the number of epochs, learning rate, and batch size based on the model’s performance and available resources.
 
-# Iterate over documents and train incrementally
-for doc in documents:
-    trainer.train(doc)
+        # Load intermediate model and tokenizer
+        model_name = "./intermediate_model"
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForCausalLM.from_pretrained(model_name)
 
-# Generate the final combined document
-combined_document = trainer.generate_combined_document(documents)
-print(combined_document)
+        # Prepare additional domain-specific text
+        additional_texts = ["More domain-specific text for progressive fine-tuning..."]
+        inputs = tokenizer(additional_texts, return_tensors="pt", padding=True, truncation=True)
 
-
-
-
-
-
-
-
-
-
-
-
-# Prepare your initial domain-specific text.
-texts = ["Your initial domain-specific text goes here..."]
-
-# Define custom dataset
-class DomainDataset(torch.utils.data.Dataset):
-    def __init__(self, inputs):
-        # Load tokenizer and model
-        model_name = "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModelForCausalLM.from_pretrained(model_name)
-        self.input_ids = inputs['input_ids']
-        self.attention_mask = inputs['attention_mask']
-
-# Define training function. It takes a list of texts as input and fine-tunes the model.
-    def train(texts):
-        inputs = tokenizer(texts, return_tensors="pt", padding=True, truncation=True)
+        # Define custom dataset
         dataset = DomainDataset(inputs)
 
-        # Set up training arguments
+        # Update training arguments
         training_args = TrainingArguments(
             output_dir="./results",
             per_device_train_batch_size=2,
-            num_train_epochs=1,  # Start with fewer epochs for initial fine-tuning
+            num_train_epochs=2,  # Increase the number of epochs for further fine-tuning
             logging_dir="./logs",
         )
 
@@ -174,75 +138,29 @@ class DomainDataset(torch.utils.data.Dataset):
             train_dataset=dataset,
         )
 
-        # Fine-tune the model
+        # Continue fine-tuning
         trainer.train()
 
-        # Save intermediate model
-        model.save_pretrained("./intermediate_model")
+        # Save progressively fine-tuned model
+        model.save_pretrained(MODEL_DIR)
 
-    def __len__(self):
-        return len(self.input_ids)
+        # Save the tokenizer as well
+        tokenizer.save_pretrained(MODEL_DIR)
 
-    def __getitem__(self, idx):
-        return {'input_ids': self.input_ids[idx], 'attention_mask': self.attention_mask[idx]}
+        # Save_pretrained() method on a Hugging Face PreTrainedModel instance, saves the following files to the specified directory:
 
+        # config.json - model architecture configuration—parameters such as layer sizes, number of attention heads, dropout rates, etc.
+        # ensures that when you later load the model, it’s instantiated with the same architecture and settings used during training or fine-tuning.
 
-
-
-# Progressive Fine-Tuning:
-## Gradually Increase Data Size:** Gradually include more domain-specific text in subsequent iterations of fine-tuning.
-## Adjust Training Parameters:** Adjust the number of epochs, learning rate, and batch size based on the model’s performance and available resources.
-
-# Load intermediate model and tokenizer
-model_name = "./intermediate_model"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(model_name)
-
-# Prepare additional domain-specific text
-additional_texts = ["More domain-specific text for progressive fine-tuning..."]
-inputs = tokenizer(additional_texts, return_tensors="pt", padding=True, truncation=True)
-
-# Define custom dataset
-dataset = DomainDataset(inputs)
-
-# Update training arguments
-training_args = TrainingArguments(
-    output_dir="./results",
-    per_device_train_batch_size=2,
-    num_train_epochs=2,  # Increase the number of epochs for further fine-tuning
-    logging_dir="./logs",
-)
-
-# Initialize Trainer
-trainer = Trainer(
-    model=model,
-    args=training_args,
-    train_dataset=dataset,
-)
-
-# Continue fine-tuning
-trainer.train()
-
-# Save progressively fine-tuned model
-model.save_pretrained(MODEL_DIR)
-
-# Save the tokenizer as well
-tokenizer.save_pretrained(MODEL_DIR)
-
-# Save_pretrained() method on a Hugging Face PreTrainedModel instance, saves the following files to the specified directory:
-
-# config.json - model architecture configuration—parameters such as layer sizes, number of attention heads, dropout rates, etc.
-# ensures that when you later load the model, it’s instantiated with the same architecture and settings used during training or fine-tuning.
-
-# pytorch_model.bin
-# The model’s learned weights (state dictionary) are serialized into this binary file (stored as a PyTorch state_dict)
-# ensures that the model is initialized with the learned parameters from training or fine-tuning.
+        # pytorch_model.bin
+        # The model’s learned weights (state dictionary) are serialized into this binary file (stored as a PyTorch state_dict)
+        # ensures that the model is initialized with the learned parameters from training or fine-tuning.
 
 
-# Evaluation and Validation:**
-## Evaluate the model’s performance on domain-specific tasks using various metrics.
-## Validate the model’s generalization capabilities with unseen text from the domain.
+        # Evaluation and Validation:**
+        ## Evaluate the model’s performance on domain-specific tasks using various metrics.
+        ## Validate the model’s generalization capabilities with unseen text from the domain.
 
-# Deployment and Monitoring:**
-## Deploy the progressively fine-tuned model to your desired platform.
-## Continuously monitor and update the model based on its performance.
+        # Deployment and Monitoring:**
+        ## Deploy the progressively fine-tuned model to your desired platform.
+        ## Continuously monitor and update the model based on its performance.

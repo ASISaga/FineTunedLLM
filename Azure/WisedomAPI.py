@@ -3,7 +3,7 @@
 
 import azure.functions as func
 import json
-from LLM.TransformersUtil import TransformersUtil  # Import the class
+from FineTunedLLM.LLM.Tokenizer import TransformersUtil  # Import the class
 from FineTunedLLM.config import MODEL_DIR
 
 # Load the model and tokenizer
