@@ -1,10 +1,15 @@
-# Fine-Tune LLM
+# Iterative Fine-Tuning of LLM
 # Gather domain-specific text relevant to your tasks (e.g., industry reports, technical documents).
 # Clean and format the text. You can split your text into smaller chunks if needed.
-
-# Iterative Fine-Tuning 
+# Fine tuning Model in a document-at-a-time or incremental fashion means that you update the model step by step—with each new document,
+# you refine the model’s understanding of a specific domain. 
+# This approach is especially useful when you want the model to gradually internalize domain-specific nuances 
+# without overwhelming it with a massive dataset all at once.
+#  
 # Start with a Small Subset:** Select a small subset of your domain-specific text for the initial fine-tuning.
 # Fine-Tune the Model:** Fine-tune the model on this subset and save the intermediate model.
+
+
 # Import necessary libraries from the transformers and datasets packages
 from transformers import AutoModelForCausalLM, Trainer, TrainingArguments
 from transformers import Seq2SeqTrainer, Seq2SeqTrainingArguments, AutoModelForSeq2SeqLM

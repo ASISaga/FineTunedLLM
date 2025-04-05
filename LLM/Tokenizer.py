@@ -1,5 +1,9 @@
 """
 This module provides a utility class for loading the pre-trained model and tokenizer.
+Document Extraction:
+Extract or prepare each document in a format suitable for training.
+Ensure that the text is clean, tokenized appropriately, and, if needed, segmented into manageable sequences
+that fit within the model's maximum sequence length
 """
 
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
