@@ -1,4 +1,4 @@
-# Fine-Tune DeepSeek R1 Distilled Model
+# Fine-Tune LLM
 # Gather domain-specific text relevant to your tasks (e.g., industry reports, technical documents).
 # Clean and format the text. You can split your text into smaller chunks if needed.
 
@@ -6,7 +6,7 @@
 # Start with a Small Subset:** Select a small subset of your domain-specific text for the initial fine-tuning.
 # Fine-Tune the Model:** Fine-tune the model on this subset and save the intermediate model.
 # Import necessary libraries from the transformers and datasets packages
-from transformers import AutoTokenizer, AutoModelForCausalLM, Trainer, TrainingArguments
+from transformers import AutoModelForCausalLM, Trainer, TrainingArguments
 from transformers import Seq2SeqTrainer, Seq2SeqTrainingArguments, AutoModelForSeq2SeqLM
 
 from datasets import Dataset
@@ -113,7 +113,7 @@ class DocumentTrainer:
 
         # Load intermediate model and tokenizer
         model_name = "./intermediate_model"
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        tokenizer = Tokenizer.from_pretrained(model_name)
         model = AutoModelForCausalLM.from_pretrained(model_name)
 
         # Prepare additional domain-specific text
