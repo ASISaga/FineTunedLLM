@@ -19,7 +19,7 @@ from datasets import Dataset
 from config import MODEL_NAME, MODEL_DIR
 
 from DomainDataset import DomainDataset
-from FineTunedLLM.LLM.Tokenizer import Tokenizer
+import Tokenizer
 
 # Define the DocumentTrainer class
 class DocumentTrainer:

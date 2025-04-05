@@ -1,8 +1,8 @@
 import os
 import torch
-from LLM import DocumentDataset
+import DocumentDataset
 from transformers import Trainer, TrainingArguments
-from LLM import KnowledgeModel, KnowledgeTokenizer
+import KnowledgeModel, KnowledgeTokenizer
 
 # Import PEFT for LoRA (Parameter-Efficient Fine-Tuning)
 from peft import LoraConfig, get_peft_model
