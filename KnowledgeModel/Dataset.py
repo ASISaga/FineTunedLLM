@@ -1,7 +1,7 @@
 from datasets import Dataset as HuggingfaceDataset
 
 import torch
-import FineTunedLLM.KnowledgeModel.Tokenizer as Tokenizer
+import KnowledgeModel.Tokenizer as Tokenizer
 
 
 # Define custom dataset

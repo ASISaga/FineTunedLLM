@@ -10,12 +10,14 @@
 # Fine-Tune the Model:** Fine-tune the model on this subset and save the intermediate model.
 
 from transformers import Seq2SeqTrainer, Seq2SeqTrainingArguments
-from KnowledgeModel import Model, Dataset, Tokenizer
+from KnowledgeModel.Model import Model
+from KnowledgeModel.Dataset import Dataset
+from KnowledgeModel.Tokenizer import Tokenizer
 
 # Import PEFT for LoRA (Parameter-Efficient Fine-Tuning)
 from peft import get_peft_model
 
-from config import MODEL_NAME, MAX_LENGTH, LEARNING_RATE, SEQ2SEQ_TRAINING_ARGS, MODEL_DIR
+from KnowledgeModel.config import MODEL_NAME, MAX_LENGTH, LEARNING_RATE, SEQ2SEQ_TRAINING_ARGS, MODEL_DIR
 
 class Trainer(Seq2SeqTrainer):
     """
@@ -28,10 +30,7 @@ class Trainer(Seq2SeqTrainer):
     """
     def __init__(
         self,
-        **kwargs
     ):
-        # Initialize parent Seq2SeqTrainer class
-        super().__init__(**kwargs)
 
         self.model_name = MODEL_NAME
         self.model_dir = MODEL_DIR
@@ -43,11 +42,20 @@ class Trainer(Seq2SeqTrainer):
         self.tokenizer = Tokenizer()
         self.model = Model()
 
+        # Define training arguments for Seq2SeqTrainer
+        self.seq2seq_training_args = Seq2SeqTrainingArguments(**SEQ2SEQ_TRAINING_ARGS)
+
+        # Ensure evaluation strategy is set to 'no' if no eval_dataset is provided
+        if not hasattr(self, 'eval_dataset') or self.eval_dataset is None:
+            self.seq2seq_training_args.eval_strategy = 'no'
+
+        # Initialize parent Seq2SeqTrainer class
+        super().__init__(model=self.model, args=self.seq2seq_training_args, tokenizer=self.tokenizer)
+
         # Initialize an empty dataset to store combined documents
         self.dataset = None
 
-        # Define training arguments for Seq2SeqTrainer
-        self.seq2seq_training_args = Seq2SeqTrainingArguments(**SEQ2SEQ_TRAINING_ARGS)
+
 
     def fine_tune_document(self, document_text: str, doc_id: str, model_save_path: str, num_epochs: int = 1, batch_size: int = 1):
         """

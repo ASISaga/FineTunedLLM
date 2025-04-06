@@ -1,15 +1,18 @@
 import requests
 import os
-from KnowledgeModel import Trainer
+from KnowledgeModel.Trainer import Trainer
 
 if __name__ == "__main__":
     # Example usage:
+
+    # Initialize the Trainer
+    trainer = Trainer()
+    trainer.load()
 
     # Define your domain-specific documents as a dictionary.
     # Each key represents a unique document ID, and the value is the document URL.
     document_urls = {
         "document1": "https://example.com/document1",
-        "document2": "https://example.com/document2",
         # More document URLs can be added here.
     }
 
@@ -25,8 +28,6 @@ if __name__ == "__main__":
         except requests.RequestException as e:
             print(f"Failed to fetch document {doc_id} from {url}: {e}")
 
-    # Initialize the Fine Tuner
-    trainer = Trainer()
 
     # Fine tune the model on the provided documents one at a time.
     for doc_id, text in documents.items():

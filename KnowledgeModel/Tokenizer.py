@@ -1,6 +1,6 @@
 from transformers import AutoTokenizer
 # Import the configuration file
-from config import MODEL_NAME
+from KnowledgeModel.config import MODEL_NAME
 
 class Tokenizer(AutoTokenizer):
     """
@@ -18,8 +18,6 @@ class Tokenizer(AutoTokenizer):
         """
         # Initialize the model with the specified model name
         self.model_name = MODEL_NAME
-
-        super().__init__(*args, **kwargs)
 
     def customTokenize(self, text):
         """
