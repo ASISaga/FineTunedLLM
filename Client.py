@@ -1,3 +1,5 @@
+import requests
+import os
 from ModelTrainer import ModelTrainer
 from config import FINE_TUNE_MODEL_NAME, OUTPUT_DIR
 
@@ -5,31 +7,33 @@ if __name__ == "__main__":
     # Example usage:
 
     # Define your domain-specific documents as a dictionary.
-    # Each key represents a unique document ID, and the value is the document text.
-    documents = {
-        "document1": "This is the text of a domain-specific document. It might include technical details, jargon, or subject-matter specifics that your model needs to learn.",
-        "document2": "Another document with additional domain-specific information. Progressive fine tuning on individual documents helps the model gradually integrate all nuances.",
-        # More documents can be added here.
+    # Each key represents a unique document ID, and the value is the document URL.
+    document_urls = {
+        "document1": "https://example.com/document1",
+        "document2": "https://example.com/document2",
+        # More document URLs can be added here.
     }
+
+    # Fetch the content of each document from the URLs
+    documents = {}
+    for doc_id, url in document_urls.items():
+        try:
+            response = requests.get(url)
+            response.raise_for_status()  # Raise an error for HTTP issues
+            documents[doc_id] = response.text
+        except requests.RequestException as e:
+            print(f"Failed to fetch document {doc_id} from {url}: {e}")
 
     # Specify the pre-trained model name (DeepSeek R1 model identifier)
     model_name = FINE_TUNE_MODEL_NAME  # Replace with your actual model name if needed
 
     # Initialize the Fine Tuner
-    # Set use_lora=True if you want to apply LoRA (ensure you have the PEFT library installed)
-    model_trainer = ModelTrainer(
-        model_name=model_name,
-        output_dir=OUTPUT_DIR,
-        learning_rate=1e-5,
-        use_lora=True
-    )
+    model_trainer = ModelTrainer()
 
     # Fine tune the model on the provided documents one at a time.
-    model_trainer.fine_tune_documents(documents, num_epochs=1, batch_size=1)
-
-    # Iterate over documents and train incrementally
-    for doc in documents:
-        model_trainer.train(doc)
+    for doc_id, text in documents.items():
+        model_save_path = os.path.join(OUTPUT_DIR, doc_id, "model")
+        model_trainer.fine_tune_document(document_text=text, doc_id=doc_id, model_save_path=model_save_path, num_epochs=1, batch_size=1)
 
     # Generate the final combined document
     combined_document = model_trainer.generate_combined_document(documents)

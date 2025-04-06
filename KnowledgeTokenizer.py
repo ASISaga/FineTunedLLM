@@ -1,6 +1,6 @@
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 # Import the configuration file
-from config import MODEL_DIR
+from config import MODEL_DIR, MODEL_NAME
 
 class KnowledgeTokenizer(AutoTokenizer):
     """
@@ -16,6 +16,7 @@ class KnowledgeTokenizer(AutoTokenizer):
             *args: Positional arguments for the AutoTokenizer.
             **kwargs: Keyword arguments for the AutoTokenizer.
         """
+        self.from_pretrained(MODEL_NAME)  # Load the tokenizer from the specified model directory
         super().__init__(*args, **kwargs)
 
     def custom_tokenize(self, text):

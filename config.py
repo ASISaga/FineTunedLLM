@@ -11,3 +11,9 @@ FINE_TUNE_MODEL_NAME = "unsloth/DeepSeek-R1-Distill-Llama-8B"
 
 # Directory to store fine-tuned model outputs
 OUTPUT_DIR = "./deepseek_r1_finetuned"
+
+# Define the maximum token length for inputs
+MAX_LENGTH = 2048
+
+# Define the learning rate for training
+LEARNING_RATE = 1e-5
