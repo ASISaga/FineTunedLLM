@@ -1,7 +1,6 @@
 import requests
 import os
-from ModelTrainer import ModelTrainer
-from config import FINE_TUNE_MODEL_NAME, OUTPUT_DIR
+from KnowledgeModel import ModelTrainer
 
 if __name__ == "__main__":
     # Example usage:
@@ -14,6 +13,8 @@ if __name__ == "__main__":
         # More document URLs can be added here.
     }
 
+    OUTPUT_DIR = "fine_tuned_models"
+
     # Fetch the content of each document from the URLs
     documents = {}
     for doc_id, url in document_urls.items():
@@ -23,9 +24,6 @@ if __name__ == "__main__":
             documents[doc_id] = response.text
         except requests.RequestException as e:
             print(f"Failed to fetch document {doc_id} from {url}: {e}")
-
-    # Specify the pre-trained model name (DeepSeek R1 model identifier)
-    model_name = FINE_TUNE_MODEL_NAME  # Replace with your actual model name if needed
 
     # Initialize the Fine Tuner
     model_trainer = ModelTrainer()
