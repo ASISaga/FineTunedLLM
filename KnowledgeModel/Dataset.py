@@ -1,14 +1,14 @@
-from datasets import Dataset
+from datasets import Dataset as HuggingfaceDataset
 
 import torch
-import KnowledgeTokenizer
+import FineTunedLLM.KnowledgeModel.Tokenizer as Tokenizer
 
 
 # Define custom dataset
-class KnowledgeDataset(Dataset):
+class Dataset(HuggingfaceDataset):
     def __init__(self, inputs=None, document_text=None, max_length=2048):
         # Load tokenizer and model
-        self.tokenizer = KnowledgeTokenizer()
+        self.tokenizer = Tokenizer()
 
         if document_text:
             # Tokenize the document with truncation and padding to a fixed size.

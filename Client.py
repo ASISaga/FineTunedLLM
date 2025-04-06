@@ -1,6 +1,6 @@
 import requests
 import os
-from KnowledgeModel import ModelTrainer
+from KnowledgeModel import Trainer
 
 if __name__ == "__main__":
     # Example usage:
@@ -26,14 +26,14 @@ if __name__ == "__main__":
             print(f"Failed to fetch document {doc_id} from {url}: {e}")
 
     # Initialize the Fine Tuner
-    model_trainer = ModelTrainer()
+    trainer = Trainer()
 
     # Fine tune the model on the provided documents one at a time.
     for doc_id, text in documents.items():
         model_save_path = os.path.join(OUTPUT_DIR, doc_id, "model")
-        model_trainer.fine_tune_document(document_text=text, doc_id=doc_id, model_save_path=model_save_path, num_epochs=1, batch_size=1)
+        trainer.fine_tune_document(document_text=text, doc_id=doc_id, model_save_path=model_save_path, num_epochs=1, batch_size=1)
 
     # Generate the final combined document
-    combined_document = model_trainer.generate_combined_document(documents)
+    combined_document = trainer.generate_combined_document(documents)
     print("Combined Document:")
     print(combined_document)

@@ -1,6 +1,6 @@
 from transformers import Trainer, TrainingArguments
 from transformers import Seq2SeqTrainer, Seq2SeqTrainingArguments
-import KnowledgeDataset, KnowledgeModel, KnowledgeTokenizer
+from KnowledgeModel import Model, Dataset, Tokenizer
 
 # Import PEFT for LoRA (Parameter-Efficient Fine-Tuning)
 from peft import get_peft_model
@@ -18,7 +18,7 @@ from config import MODEL_NAME, OUTPUT_DIR, MAX_LENGTH, LEARNING_RATE, SEQ2SEQ_TR
 # Start with a Small Subset:** Select a small subset of your domain-specific text for the initial fine-tuning.
 # Fine-Tune the Model:** Fine-tune the model on this subset and save the intermediate model.
 
-class ModelTrainer(Seq2SeqTrainer):
+class Trainer(Seq2SeqTrainer):
     """
     Class to handle the fine tuning process for Model on domain-specific documents.
     Inherits from the Hugging Face `Seq2SeqTrainer` class to leverage its training capabilities for sequence-to-sequence tasks.
@@ -39,10 +39,10 @@ class ModelTrainer(Seq2SeqTrainer):
         self.max_length = MAX_LENGTH
         self.learning_rate = LEARNING_RATE
 
-        # Load the tokenizer and KnowledgeModel
+        # Load the tokenizer and Model
         print(f"Loading model: {self.model_name}")
-        self.tokenizer = KnowledgeTokenizer()
-        self.model = KnowledgeModel()
+        self.tokenizer = Tokenizer()
+        self.model = Model()
 
         # Initialize an empty dataset to store combined documents
         self.combined_dataset = None
@@ -62,7 +62,7 @@ class ModelTrainer(Seq2SeqTrainer):
           batch_size (int): Batch size per device during training.
         """
         # Prepare dataset from the document text.
-        dataset = KnowledgeDataset(document_text, self.tokenizer, self.max_length)
+        dataset = Dataset(document_text, self.tokenizer, self.max_length)
 
         # Configure training arguments
         self.args.output_dir = model_save_path
@@ -142,8 +142,8 @@ class ModelTrainer(Seq2SeqTrainer):
         """
         # Load intermediate model and tokenizer
         intermediate_model_path = "./intermediate_model"
-        tokenizer = KnowledgeTokenizer.from_pretrained(intermediate_model_path)
-        model = KnowledgeModel.from_pretrained(intermediate_model_path)
+        tokenizer = Tokenizer.from_pretrained(intermediate_model_path)
+        model = Model.from_pretrained(intermediate_model_path)
 
         # Prepare additional domain-specific text
         inputs = tokenizer(
@@ -151,7 +151,7 @@ class ModelTrainer(Seq2SeqTrainer):
         )
 
         # Define custom dataset
-        dataset = KnowledgeDataset(inputs)
+        dataset = Dataset(inputs)
 
         # Update training arguments
         training_args = TrainingArguments(

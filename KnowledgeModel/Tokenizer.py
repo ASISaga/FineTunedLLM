@@ -2,7 +2,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 # Import the configuration file
 from config import MODEL_DIR, MODEL_NAME
 
-class KnowledgeTokenizer(AutoTokenizer):
+class Tokenizer(AutoTokenizer):
     """
     KnowledgeTokenizer is a custom tokenizer class that extends the functionality of AutoTokenizer.
     This class can be used to tokenize text data with additional features or customizations.
@@ -43,7 +43,7 @@ class KnowledgeTokenizer(AutoTokenizer):
             tuple: A tuple containing the model and tokenizer objects.
         """
         model = AutoModelForSequenceClassification.from_pretrained(MODEL_DIR)
-        tokenizer = KnowledgeTokenizer.from_pretrained(MODEL_DIR)
+        tokenizer = Tokenizer.from_pretrained(MODEL_DIR)
         return model, tokenizer
 
     def preprocess_function(self, document):

@@ -1,7 +1,7 @@
 from transformers import AutoModelForCausalLM
 from config import MODEL_NAME, LORA_CONFIG
 
-class KnowledgeModel(AutoModelForCausalLM):
+class Model(AutoModelForCausalLM):
     """
     Custom model class inheriting from AutoModelForCausalLM.
     This class can be extended to include additional methods or attributes
