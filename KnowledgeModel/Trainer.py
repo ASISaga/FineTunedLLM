@@ -9,7 +9,7 @@
 # Start with a Small Subset:** Select a small subset of your domain-specific text for the initial fine-tuning.
 # Fine-Tune the Model:** Fine-tune the model on this subset and save the intermediate model.
 
-from transformers import Seq2SeqTrainer, Seq2SeqTrainingArguments, AutoModelForSequenceClassification
+from transformers import Seq2SeqTrainer, Seq2SeqTrainingArguments
 from KnowledgeModel import Model, Dataset, Tokenizer
 
 # Import PEFT for LoRA (Parameter-Efficient Fine-Tuning)
@@ -48,18 +48,6 @@ class Trainer(Seq2SeqTrainer):
 
         # Define training arguments for Seq2SeqTrainer
         self.seq2seq_training_args = Seq2SeqTrainingArguments(**SEQ2SEQ_TRAINING_ARGS)
-
-    @staticmethod
-    def load_model_and_tokenizer():
-        """
-        Load the pre-trained model and tokenizer from the specified directory.
-
-        Returns:
-            tuple: A tuple containing the model and tokenizer objects.
-        """
-        model = AutoModelForSequenceClassification.from_pretrained(MODEL_DIR)
-        tokenizer = Tokenizer.from_pretrained(MODEL_DIR)
-        return model, tokenizer
 
     def fine_tune_document(self, document_text: str, doc_id: str, model_save_path: str, num_epochs: int = 1, batch_size: int = 1):
         """
@@ -168,3 +156,35 @@ class Trainer(Seq2SeqTrainer):
 
         print("Progressive fine-tuning completed. Model and tokenizer saved.")
 
+    # Load fine tuned model if available, load cached model if not fine tuned yet, and download model if not cached 
+    def load(self):
+        """
+        Load the model and tokenizer using their respective load methods.
+
+        Returns:
+            bool: True if both model and tokenizer are successfully loaded, False otherwise.
+        """
+        try:
+            self.tokenizer = self.tokenizer.load(self.model_dir, local_files_only=True)
+            self.model = self.model.load(self.model_dir, local_files_only=True)
+            print("Fine-tuned model and tokenizer loaded successfully!")
+            return True
+        except Exception as e:
+            print("Failed to load fine-tuned model and tokenizer:", e)
+
+        try:
+            self.tokenizer = self.tokenizer.load(self.model_name, local_files_only=True)
+            self.model = self.model.load(self.model_name, local_files_only=True)
+            print("Cached model and tokenizer loaded successfully!")
+            return True
+        except Exception as e:
+            print("Failed to load cached model and tokenizer:", e)
+
+        try:
+            self.tokenizer = self.tokenizer.load(self.model_name)
+            self.model = self.model.load(self.model_name)
+            print("Model and tokenizer downloaded successfully!")
+            return True
+        except Exception as e:
+            print("Failed to download model and tokenizer:", e)
+            return False

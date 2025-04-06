@@ -1,7 +1,7 @@
 # Configuration file for FineTunedLLM
 
 # Directory to store fine-tuned model
-MODEL_DIR = "path/to/your/model/directory"  # Replace with the actual path to your model directory
+MODEL_DIR = "model-directory"  # Replace with the actual path to your model directory
 
 # Model name for fine-tuning
 MODEL_NAME = "unsloth/DeepSeek-R1-Distill-Llama-8B"

@@ -8,7 +8,6 @@ class Model(AutoModelForCausalLM):
     specific to the knowledge model.
     """
     def __init__(self, *args, **kwargs):
-        self.from_pretrained(MODEL_NAME)
         # Initialize the model with the specified model name
         self.model_name = MODEL_NAME
         
@@ -40,3 +39,22 @@ class Model(AutoModelForCausalLM):
         from peft import get_peft_model
         self.model = get_peft_model(self, lora_config)
         print("LoRA has been applied to the model.")
+
+    def load(self, model_path, local_files_only=False):
+        """
+        Load the model from the specified path.
+
+        Args:
+            model_path (str): Path to the model directory or name.
+            local_files_only (bool): Whether to load only local files.
+
+        Returns:
+            Model: The loaded model instance.
+        """
+        try:
+            model = self.from_pretrained(model_path, local_files_only=local_files_only)
+            print(f"Model loaded successfully from {model_path}.")
+            return model
+        except Exception as e:
+            print(f"Failed to load model from {model_path}: {e}")
+            raise
