@@ -11,6 +11,17 @@ from transformers import Seq2SeqTrainer, Seq2SeqTrainingArguments
 
 from config import MODEL_NAME, OUTPUT_DIR, MAX_LENGTH, LEARNING_RATE
 
+# Iterative Fine-Tuning of LLM
+# Gather domain-specific text relevant to your tasks (e.g., industry reports, technical documents).
+# Clean and format the text. You can split your text into smaller chunks if needed.
+# Fine tuning Model in a document-at-a-time or incremental fashion means that you update the model step by step—with each new document,
+# you refine the model’s understanding of a specific domain. 
+# This approach is especially useful when you want the model to gradually internalize domain-specific nuances 
+# without overwhelming it with a massive dataset all at once.
+#  
+# Start with a Small Subset:** Select a small subset of your domain-specific text for the initial fine-tuning.
+# Fine-Tune the Model:** Fine-tune the model on this subset and save the intermediate model.
+
 class ModelTrainer(Trainer):
     """
     Class to handle the fine tuning process for Model on domain-specific documents.
@@ -180,4 +191,47 @@ class ModelTrainer(Trainer):
 
         combined_document = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
         return combined_document
+
+    def progressive_fine_tuning(self, additional_texts):
+        """
+        Perform progressive fine-tuning by gradually including more domain-specific text.
+        Args:
+            additional_texts (list): List of additional domain-specific texts for fine-tuning.
+        """
+        # Load intermediate model and tokenizer
+        intermediate_model_path = "./intermediate_model"
+        tokenizer = KnowledgeTokenizer.from_pretrained(intermediate_model_path)
+        model = KnowledgeModel.from_pretrained(intermediate_model_path)
+
+        # Prepare additional domain-specific text
+        inputs = tokenizer(
+            additional_texts, return_tensors="pt", padding=True, truncation=True
+        )
+
+        # Define custom dataset
+        dataset = DomainDataset(inputs)
+
+        # Update training arguments
+        training_args = TrainingArguments(
+            output_dir="./results",
+            per_device_train_batch_size=2,
+            num_train_epochs=2,  # Increase the number of epochs for further fine-tuning
+            logging_dir="./logs",
+        )
+
+        # Initialize Trainer
+        trainer = Trainer(
+            model=model,
+            args=training_args,
+            train_dataset=dataset,
+        )
+
+        # Continue fine-tuning
+        trainer.train()
+
+        # Save progressively fine-tuned model
+        model.save_pretrained(self.output_dir)
+        tokenizer.save_pretrained(self.output_dir)
+
+        print("Progressive fine-tuning completed. Model and tokenizer saved.")
 
