@@ -13,7 +13,7 @@ if __name__ == "__main__":
         # More document URLs can be added here.
     }
 
-    OUTPUT_DIR = "fine_tuned_models"
+    MODEL_DIR = "fine_tuned_models"
 
     # Fetch the content of each document from the URLs
     documents = {}
@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
     # Fine tune the model on the provided documents one at a time.
     for doc_id, text in documents.items():
-        model_save_path = os.path.join(OUTPUT_DIR, doc_id, "model")
+        model_save_path = os.path.join(MODEL_DIR, doc_id, "model")
         trainer.fine_tune_document(document_text=text, doc_id=doc_id, model_save_path=model_save_path, num_epochs=1, batch_size=1)
 
     # Generate the final combined document

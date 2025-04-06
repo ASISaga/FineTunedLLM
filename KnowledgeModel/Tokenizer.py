@@ -1,6 +1,6 @@
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoTokenizer
 # Import the configuration file
-from config import MODEL_DIR, MODEL_NAME
+from config import MODEL_NAME
 
 class Tokenizer(AutoTokenizer):
     """
@@ -19,7 +19,7 @@ class Tokenizer(AutoTokenizer):
         self.from_pretrained(MODEL_NAME)  # Load the tokenizer from the specified model directory
         super().__init__(*args, **kwargs)
 
-    def custom_tokenize(self, text):
+    def customTokenize(self, text):
         """
         A custom method to tokenize text with additional processing.
 
@@ -34,19 +34,7 @@ class Tokenizer(AutoTokenizer):
         tokens = super().tokenize(processed_text)  # Use the base class's tokenize method
         return tokens
 
-    @staticmethod
-    def load_model_and_tokenizer():
-        """
-        Load the pre-trained model and tokenizer from the specified directory.
-
-        Returns:
-            tuple: A tuple containing the model and tokenizer objects.
-        """
-        model = AutoModelForSequenceClassification.from_pretrained(MODEL_DIR)
-        tokenizer = Tokenizer.from_pretrained(MODEL_DIR)
-        return model, tokenizer
-
-    def preprocess_function(self, document):
+    def preprocessFunction(self, document):
         """
         Preprocess a document by tokenizing and truncating it to fit the model's input size.
         Args:

@@ -1,12 +1,3 @@
-from transformers import Trainer, TrainingArguments
-from transformers import Seq2SeqTrainer, Seq2SeqTrainingArguments
-from KnowledgeModel import Model, Dataset, Tokenizer
-
-# Import PEFT for LoRA (Parameter-Efficient Fine-Tuning)
-from peft import get_peft_model
-
-from config import MODEL_NAME, OUTPUT_DIR, MAX_LENGTH, LEARNING_RATE, SEQ2SEQ_TRAINING_ARGS
-
 # Iterative Fine-Tuning of LLM
 # Gather domain-specific text relevant to your tasks (e.g., industry reports, technical documents).
 # Clean and format the text. You can split your text into smaller chunks if needed.
@@ -17,6 +8,14 @@ from config import MODEL_NAME, OUTPUT_DIR, MAX_LENGTH, LEARNING_RATE, SEQ2SEQ_TR
 #  
 # Start with a Small Subset:** Select a small subset of your domain-specific text for the initial fine-tuning.
 # Fine-Tune the Model:** Fine-tune the model on this subset and save the intermediate model.
+
+from transformers import Seq2SeqTrainer, Seq2SeqTrainingArguments, AutoModelForSequenceClassification
+from KnowledgeModel import Model, Dataset, Tokenizer
+
+# Import PEFT for LoRA (Parameter-Efficient Fine-Tuning)
+from peft import get_peft_model
+
+from config import MODEL_NAME, MAX_LENGTH, LEARNING_RATE, SEQ2SEQ_TRAINING_ARGS, MODEL_DIR
 
 class Trainer(Seq2SeqTrainer):
     """
@@ -35,7 +34,7 @@ class Trainer(Seq2SeqTrainer):
         super().__init__(**kwargs)
 
         self.model_name = MODEL_NAME
-        self.output_dir = OUTPUT_DIR
+        self.model_dir = MODEL_DIR
         self.max_length = MAX_LENGTH
         self.learning_rate = LEARNING_RATE
 
@@ -45,10 +44,22 @@ class Trainer(Seq2SeqTrainer):
         self.model = Model()
 
         # Initialize an empty dataset to store combined documents
-        self.combined_dataset = None
+        self.dataset = None
 
         # Define training arguments for Seq2SeqTrainer
         self.seq2seq_training_args = Seq2SeqTrainingArguments(**SEQ2SEQ_TRAINING_ARGS)
+
+    @staticmethod
+    def load_model_and_tokenizer():
+        """
+        Load the pre-trained model and tokenizer from the specified directory.
+
+        Returns:
+            tuple: A tuple containing the model and tokenizer objects.
+        """
+        model = AutoModelForSequenceClassification.from_pretrained(MODEL_DIR)
+        tokenizer = Tokenizer.from_pretrained(MODEL_DIR)
+        return model, tokenizer
 
     def fine_tune_document(self, document_text: str, doc_id: str, model_save_path: str, num_epochs: int = 1, batch_size: int = 1):
         """
@@ -96,14 +107,14 @@ class Trainer(Seq2SeqTrainer):
         """
         Train the model on the combined dataset.
         """
-        if self.combined_dataset is None:
+        if self.dataset is None:
             print("No documents added to the dataset for training.")
             return
 
         trainer = Seq2SeqTrainer(
             model=self.model,
             args=self.seq2seq_training_args,
-            train_dataset=self.combined_dataset,
+            train_dataset=self.dataset,
             tokenizer=self.tokenizer,
         )
 
@@ -140,40 +151,20 @@ class Trainer(Seq2SeqTrainer):
         Args:
             additional_texts (list): List of additional domain-specific texts for fine-tuning.
         """
-        # Load intermediate model and tokenizer
-        intermediate_model_path = "./intermediate_model"
-        tokenizer = Tokenizer.from_pretrained(intermediate_model_path)
-        model = Model.from_pretrained(intermediate_model_path)
-
         # Prepare additional domain-specific text
-        inputs = tokenizer(
+        inputs = self.tokenizer(
             additional_texts, return_tensors="pt", padding=True, truncation=True
         )
 
         # Define custom dataset
-        dataset = Dataset(inputs)
-
-        # Update training arguments
-        training_args = TrainingArguments(
-            output_dir="./results",
-            per_device_train_batch_size=2,
-            num_train_epochs=2,  # Increase the number of epochs for further fine-tuning
-            logging_dir="./logs",
-        )
-
-        # Initialize Trainer
-        trainer = Trainer(
-            model=model,
-            args=training_args,
-            train_dataset=dataset,
-        )
+        self.dataset = Dataset(inputs)
 
         # Continue fine-tuning
-        trainer.train()
+        self.train()
 
         # Save progressively fine-tuned model
-        model.save_pretrained(self.output_dir)
-        tokenizer.save_pretrained(self.output_dir)
+        self.model.save_pretrained(self.model_dir)
+        self.tokenizer.save_pretrained(self.model_dir)
 
         print("Progressive fine-tuning completed. Model and tokenizer saved.")
 
