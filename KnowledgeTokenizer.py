@@ -1,4 +1,6 @@
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+# Import the configuration file
+from config import MODEL_DIR
 
 class KnowledgeTokenizer(AutoTokenizer):
     """
@@ -30,3 +32,26 @@ class KnowledgeTokenizer(AutoTokenizer):
         processed_text = text.lower()  # Convert text to lowercase
         tokens = super().tokenize(processed_text)  # Use the base class's tokenize method
         return tokens
+
+    @staticmethod
+    def load_model_and_tokenizer():
+        """
+        Load the pre-trained model and tokenizer from the specified directory.
+
+        Returns:
+            tuple: A tuple containing the model and tokenizer objects.
+        """
+        model = AutoModelForSequenceClassification.from_pretrained(MODEL_DIR)
+        tokenizer = KnowledgeTokenizer.from_pretrained(MODEL_DIR)
+        return model, tokenizer
+
+    def preprocess_function(self, document):
+        """
+        Preprocess a document by tokenizing and truncating it to fit the model's input size.
+        Args:
+            document (str): The document text to preprocess.
+        Returns:
+            model_inputs (dict): A dictionary containing tokenized inputs.
+        """
+        model_inputs = self(document, max_length=1024, truncation=True, return_tensors="pt")
+        return model_inputs

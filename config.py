@@ -1,6 +1,7 @@
-# Path to the pre-trained model directory (uploaded to Azure Storage or local app folder)
-MODEL_DIR = "./final_model"
-MODEL_NAME = "deepseek-ai/DeepSeek-R1" #DeepSeek R1 Distilled Model
+# Configuration file for FineTunedLLM
+
+# Define the directory for the pre-trained model
+MODEL_DIR = "path/to/your/model/directory"  # Replace with the actual path to your model directory
 
 # Define the model name as a constant
 MODEL_NAME = "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"

@@ -1,6 +1,6 @@
 import os
 import torch
-import DocumentDataset
+import DomainDataset
 from transformers import Trainer, TrainingArguments
 import KnowledgeModel, KnowledgeTokenizer
 
@@ -92,7 +92,7 @@ class ModelTrainer(Trainer):
           batch_size (int): Batch size per device during training.
         """
         # Prepare dataset from the document text.
-        dataset = DocumentDataset(document_text, self.tokenizer, self.max_length)
+        dataset = DomainDataset(document_text, self.tokenizer, self.max_length)
 
         # Create an output directory for the fine tuning process
         output_path = os.path.join(self.output_dir, doc_id)

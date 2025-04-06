@@ -1,5 +1,4 @@
 from ModelTrainer import ModelTrainer
-from FineTuneLLM import DocumentTrainer
 from config import FINE_TUNE_MODEL_NAME, OUTPUT_DIR
 
 if __name__ == "__main__":
@@ -28,14 +27,11 @@ if __name__ == "__main__":
     # Fine tune the model on the provided documents one at a time.
     model_trainer.fine_tune_documents(documents, num_epochs=1, batch_size=1)
 
-    # Initialize the DocumentTrainer
-    trainer = DocumentTrainer()
-
     # Iterate over documents and train incrementally
     for doc in documents:
-        trainer.train(doc)
+        model_trainer.train(doc)
 
     # Generate the final combined document
-    combined_document = trainer.generate_combined_document(documents)
+    combined_document = model_trainer.generate_combined_document(documents)
     print("Combined Document:")
     print(combined_document)
