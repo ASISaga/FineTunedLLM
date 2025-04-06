@@ -1,6 +1,6 @@
 from transformers import Trainer, TrainingArguments
 from transformers import Seq2SeqTrainer, Seq2SeqTrainingArguments
-import DomainDataset, KnowledgeModel, KnowledgeTokenizer
+import KnowledgeDataset, KnowledgeModel, KnowledgeTokenizer
 
 # Import PEFT for LoRA (Parameter-Efficient Fine-Tuning)
 from peft import get_peft_model
@@ -62,7 +62,7 @@ class ModelTrainer(Seq2SeqTrainer):
           batch_size (int): Batch size per device during training.
         """
         # Prepare dataset from the document text.
-        dataset = DomainDataset(document_text, self.tokenizer, self.max_length)
+        dataset = KnowledgeDataset(document_text, self.tokenizer, self.max_length)
 
         # Configure training arguments
         self.args.output_dir = model_save_path
@@ -151,7 +151,7 @@ class ModelTrainer(Seq2SeqTrainer):
         )
 
         # Define custom dataset
-        dataset = DomainDataset(inputs)
+        dataset = KnowledgeDataset(inputs)
 
         # Update training arguments
         training_args = TrainingArguments(

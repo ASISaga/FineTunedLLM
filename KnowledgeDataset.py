@@ -1,4 +1,3 @@
-from torch.utils.data import Dataset
 from datasets import Dataset
 
 import torch
@@ -6,7 +5,7 @@ import KnowledgeTokenizer
 
 
 # Define custom dataset
-class DomainDataset(Dataset):
+class KnowledgeDataset(Dataset):
     def __init__(self, inputs=None, document_text=None, max_length=2048):
         # Load tokenizer and model
         self.tokenizer = KnowledgeTokenizer()
