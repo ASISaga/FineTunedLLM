@@ -1,20 +1,19 @@
-# import PyTorch library for custom dataset
 from torch.utils.data import Dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM, Trainer, TrainingArguments
+from config import MODEL_NAME
 
 # Define custom dataset
 class DomainDataset(Dataset):
     def __init__(self, inputs):
         # Load tokenizer and model
-        model_name = "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModelForCausalLM.from_pretrained(model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+        self.model = AutoModelForCausalLM.from_pretrained(MODEL_NAME)
         self.input_ids = inputs['input_ids']
         self.attention_mask = inputs['attention_mask']
 
-        model_name = "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModelForCausalLM.from_pretrained(model_name)
+        # Load tokenizer and model
+        self.tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+        self.model = AutoModelForCausalLM.from_pretrained(MODEL_NAME)
         self.input_ids = inputs['input_ids']
         self.attention_mask = inputs['attention_mask']
 

@@ -1,5 +1,6 @@
-from LLM import ModelTrainer
-from LLM.FineTuneLLM import DocumentTrainer
+from ModelTrainer import ModelTrainer
+from FineTuneLLM import DocumentTrainer
+from config import FINE_TUNE_MODEL_NAME, OUTPUT_DIR
 
 if __name__ == "__main__":
     # Example usage:
@@ -13,13 +14,13 @@ if __name__ == "__main__":
     }
 
     # Specify the pre-trained model name (DeepSeek R1 model identifier)
-    model_name = "unsloth/DeepSeek-R1-Distill-Llama-8B"  # Replace with your actual model name if needed
+    model_name = FINE_TUNE_MODEL_NAME  # Replace with your actual model name if needed
 
     # Initialize the Fine Tuner
     # Set use_lora=True if you want to apply LoRA (ensure you have the PEFT library installed)
     model_trainer = ModelTrainer(
         model_name=model_name,
-        output_dir="./deepseek_r1_finetuned",
+        output_dir=OUTPUT_DIR,
         learning_rate=1e-5,
         use_lora=True
     )
