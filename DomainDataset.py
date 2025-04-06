@@ -1,14 +1,15 @@
 from torch.utils.data import Dataset
-from transformers import AutoTokenizer, Trainer, TrainingArguments
-from config import MODEL_NAME
-import KnowledgeModel
+from datasets import Dataset
+
+import torch
+import KnowledgeTokenizer
+
 
 # Define custom dataset
 class DomainDataset(Dataset):
     def __init__(self, inputs=None, document_text=None, max_length=2048):
         # Load tokenizer and model
-        self.tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-        self.model = KnowledgeModel.from_pretrained(MODEL_NAME)
+        self.tokenizer = KnowledgeTokenizer()
 
         if document_text:
             # Tokenize the document with truncation and padding to a fixed size.
@@ -30,31 +31,6 @@ class DomainDataset(Dataset):
         # Prepare your initial domain-specific text.
         self.texts = ["Your initial domain-specific text goes here..."]
 
-    def train(self, texts):
-        inputs = self.tokenizer(texts, return_tensors="pt", padding=True, truncation=True)
-        dataset = DomainDataset(inputs=inputs)
-
-        # Set up training arguments
-        training_args = TrainingArguments(
-            output_dir="./results",
-            per_device_train_batch_size=2,
-            num_train_epochs=1,  # Start with fewer epochs for initial fine-tuning
-            logging_dir="./logs",
-        )
-
-        # Initialize Trainer
-        trainer = Trainer(
-            model=self.model,
-            args=training_args,
-            train_dataset=dataset,
-        )
-
-        # Fine-tune the model
-        trainer.train()
-
-        # Save intermediate model
-        self.model.save_pretrained("./intermediate_model")
-
     def __len__(self):
         return self.input_ids.shape[0]
 
@@ -63,3 +39,24 @@ class DomainDataset(Dataset):
             'input_ids': self.input_ids[idx],
             'attention_mask': self.attention_mask[idx]
         }
+
+    def add_document(self, document_text):
+        """
+        Add a new document to the dataset.
+        Args:
+            document_text (str): The document text to add.
+        """
+        tokenized_document = self.tokenizer(
+            document_text,
+            truncation=True,
+            padding="max_length",
+            max_length=self.tokenizer.model_max_length,
+            return_tensors="pt"
+        )
+
+        new_input_ids = tokenized_document["input_ids"]
+        new_attention_mask = tokenized_document["attention_mask"]
+
+        # Concatenate the new data with the existing dataset
+        self.input_ids = torch.cat((self.input_ids, new_input_ids), dim=0)
+        self.attention_mask = torch.cat((self.attention_mask, new_attention_mask), dim=0)

@@ -1,15 +1,11 @@
-import DomainDataset
 from transformers import Trainer, TrainingArguments
-import KnowledgeModel, KnowledgeTokenizer
+from transformers import Seq2SeqTrainer, Seq2SeqTrainingArguments
+import DomainDataset, KnowledgeModel, KnowledgeTokenizer
 
 # Import PEFT for LoRA (Parameter-Efficient Fine-Tuning)
-from peft import LoraConfig, get_peft_model
-peft_available = True
+from peft import get_peft_model
 
-from datasets import Dataset
-from transformers import Seq2SeqTrainer, Seq2SeqTrainingArguments
-
-from config import MODEL_NAME, OUTPUT_DIR, MAX_LENGTH, LEARNING_RATE
+from config import MODEL_NAME, OUTPUT_DIR, MAX_LENGTH, LEARNING_RATE, SEQ2SEQ_TRAINING_ARGS
 
 # Iterative Fine-Tuning of LLM
 # Gather domain-specific text relevant to your tasks (e.g., industry reports, technical documents).
@@ -22,10 +18,10 @@ from config import MODEL_NAME, OUTPUT_DIR, MAX_LENGTH, LEARNING_RATE
 # Start with a Small Subset:** Select a small subset of your domain-specific text for the initial fine-tuning.
 # Fine-Tune the Model:** Fine-tune the model on this subset and save the intermediate model.
 
-class ModelTrainer(Trainer):
+class ModelTrainer(Seq2SeqTrainer):
     """
     Class to handle the fine tuning process for Model on domain-specific documents.
-    Inherits from the Hugging Face `Trainer` class to leverage its training capabilities.
+    Inherits from the Hugging Face `Seq2SeqTrainer` class to leverage its training capabilities for sequence-to-sequence tasks.
     
     The fine_tune_document method processes one document at a time,
     while fine_tune_documents iterates over a collection of documents.
@@ -35,7 +31,7 @@ class ModelTrainer(Trainer):
         self,
         **kwargs
     ):
-        # Initialize parent Trainer class
+        # Initialize parent Seq2SeqTrainer class
         super().__init__(**kwargs)
 
         self.model_name = MODEL_NAME
@@ -48,41 +44,11 @@ class ModelTrainer(Trainer):
         self.tokenizer = KnowledgeTokenizer()
         self.model = KnowledgeModel()
 
-        # Apply LoRA unconditionally
-        self._apply_lora_to_model()
-
         # Initialize an empty dataset to store combined documents
         self.combined_dataset = None
 
         # Define training arguments for Seq2SeqTrainer
-        self.seq2seq_training_args = Seq2SeqTrainingArguments(
-            output_dir=self.output_dir,
-            evaluation_strategy="epoch",
-            learning_rate=self.learning_rate,
-            per_device_train_batch_size=4,
-            per_device_eval_batch_size=4,
-            weight_decay=0.01,
-            save_total_limit=3,
-            num_train_epochs=3,
-            predict_with_generate=True,
-        )
-
-    def _apply_lora_to_model(self):
-        """
-        Apply LoRA to the model by updating only selected modules.
-        This reduces the number of parameters to be updated and can help
-        mitigate overfitting or catastrophic forgetting.
-        """
-        lora_config = LoraConfig(
-            r=16,
-            lora_alpha=16,
-            target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
-            lora_dropout=0.05,
-            bias="none",
-            task_type="CAUSAL_LM"  # Adjust based on model type if needed
-        )
-        self.model = get_peft_model(self.model, lora_config)
-        print("LoRA has been applied to the model.")
+        self.seq2seq_training_args = Seq2SeqTrainingArguments(**SEQ2SEQ_TRAINING_ARGS)
 
     def fine_tune_document(self, document_text: str, doc_id: str, model_save_path: str, num_epochs: int = 1, batch_size: int = 1):
         """
@@ -125,30 +91,6 @@ class ModelTrainer(Trainer):
         """
         for doc_id, text in documents.items():
             self.fine_tune_document(document_text=text, doc_id=doc_id, num_epochs=num_epochs, batch_size=batch_size)
-
-    def add_document_to_dataset(self, document_text):
-        """
-        Add a new document to the combined dataset.
-        Args:
-            document_text (str): The document text to add.
-        """
-        tokenized_document = self.tokenizer(
-            document_text,
-            truncation=True,
-            padding="max_length",
-            max_length=self.max_length,
-            return_tensors="pt"
-        )
-
-        new_dataset = Dataset.from_dict({
-            "input_ids": tokenized_document["input_ids"],
-            "attention_mask": tokenized_document["attention_mask"]
-        })
-
-        if self.combined_dataset is None:
-            self.combined_dataset = new_dataset
-        else:
-            self.combined_dataset = self.combined_dataset.concatenate(new_dataset)
 
     def train_combined_dataset(self):
         """
