@@ -7,6 +7,8 @@ if __name__ == "__main__":
 
     # Initialize the Trainer
     trainer = Trainer()
+
+def temp():
     trainer.load()
 
     # Define your domain-specific documents as a dictionary.

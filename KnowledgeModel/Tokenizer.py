@@ -18,6 +18,7 @@ class Tokenizer(AutoTokenizer):
         """
         # Initialize the model with the specified model name
         self.model_name = MODEL_NAME
+        self.from_pretrained(self.model_name)
 
     def customTokenize(self, text):
         """

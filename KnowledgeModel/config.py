@@ -4,7 +4,8 @@
 MODEL_DIR = "model-directory"  # Replace with the actual path to your model directory
 
 # Model name for fine-tuning
-MODEL_NAME = "unsloth/DeepSeek-R1-Distill-Llama-8B"
+# MODEL_NAME = "unsloth/DeepSeek-R1-Distill-Llama-8B"
+MODEL_NAME = "DeepSeek-R1-Distill-Qwen-1.5B"
 
 # Define the maximum token length for inputs
 MAX_LENGTH = 2048

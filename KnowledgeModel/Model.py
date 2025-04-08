@@ -1,6 +1,6 @@
 from transformers import AutoModelForCausalLM
 from KnowledgeModel.config import MODEL_NAME, LORA_CONFIG
-from peft import get_peft_model, LoraConfig
+#from peft import get_peft_model, LoraConfig
 
 class Model(AutoModelForCausalLM):
     """
@@ -38,13 +38,13 @@ class Model(AutoModelForCausalLM):
         mitigate overfitting or catastrophic forgetting.
         """
         # Convert the dictionary to a LoraConfig object
-        lora_config_obj = LoraConfig(**lora_config)
+        # lora_config_obj = LoraConfig(**lora_config)
 
         # Ensure the model has the required attributes for PEFT
-        if not hasattr(self, 'modules'):
-            self.modules = lambda: []  # Provide a default empty implementation
+        # if not hasattr(self, 'modules'):
+          #  self.modules = lambda: []  # Provide a default empty implementation
 
-        self.model = get_peft_model(self, lora_config_obj)
+        #self.model = get_peft_model(self, lora_config_obj)
         print("LoRA has been applied to the model.")
 
     def load(self, model_path, local_files_only=False):

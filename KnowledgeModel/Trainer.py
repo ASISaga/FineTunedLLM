@@ -15,7 +15,7 @@ from KnowledgeModel.Dataset import Dataset
 from KnowledgeModel.Tokenizer import Tokenizer
 
 # Import PEFT for LoRA (Parameter-Efficient Fine-Tuning)
-from peft import get_peft_model
+#from peft import get_peft_model
 
 from KnowledgeModel.config import MODEL_NAME, MAX_LENGTH, LEARNING_RATE, SEQ2SEQ_TRAINING_ARGS, MODEL_DIR
 
@@ -40,7 +40,10 @@ class Trainer(Seq2SeqTrainer):
         # Load the tokenizer and Model
         print(f"Loading model: {self.model_name}")
         self.tokenizer = Tokenizer()
+        print("Tokenizer initialized")
+
         self.model = Model()
+        print("Model initialized")
 
         # Define training arguments for Seq2SeqTrainer
         self.seq2seq_training_args = Seq2SeqTrainingArguments(**SEQ2SEQ_TRAINING_ARGS)
