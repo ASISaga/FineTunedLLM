@@ -1,42 +1,34 @@
-import requests
-import os
-from KnowledgeModel.Trainer import Trainer
+# Example usage of the AbstractiveSummarizer class
+from KnowledgeModel.AbstractiveSummarizer import AbstractiveSummarizer
+
+def main():
+    """
+    Main function to demonstrate the usage of the AbstractiveSummarizer class.
+    """
+    # Define the input text to be summarized.
+    input_text = """
+    Artificial intelligence (AI) is rapidly evolving, and one of its most exciting applications
+    is in the field of natural language processing. Modern AI systems can understand, generate, 
+    and even translate text with impressive accuracy. Among these systems, transformers have 
+    revolutionized how we approach tasks like summarization, question answering, and language translation.
+    Abstractive summarization, in particular, leverages these advanced models to generate summaries 
+    that are not merely copies of the original content but are rephrased, concise, and often more 
+    coherent in conveying the underlying meaning of the text.
+    """
+
+    # Create an instance of the AbstractiveSummarizer class.
+    summarizer = AbstractiveSummarizer()
+
+    # Generate the summary.
+    summary = summarizer.summarize_text(
+        input_text,
+        max_length=100,
+        min_length=40,
+        do_sample=False
+    )
+
+    # Print the generated summary.
+    print("Summary:", summary)
 
 if __name__ == "__main__":
-    # Example usage:
-
-    # Initialize the Trainer
-    trainer = Trainer()
-
-def temp():
-    trainer.load()
-
-    # Define your domain-specific documents as a dictionary.
-    # Each key represents a unique document ID, and the value is the document URL.
-    document_urls = {
-        "document1": "https://example.com/document1",
-        # More document URLs can be added here.
-    }
-
-    MODEL_DIR = "fine_tuned_models"
-
-    # Fetch the content of each document from the URLs
-    documents = {}
-    for doc_id, url in document_urls.items():
-        try:
-            response = requests.get(url)
-            response.raise_for_status()  # Raise an error for HTTP issues
-            documents[doc_id] = response.text
-        except requests.RequestException as e:
-            print(f"Failed to fetch document {doc_id} from {url}: {e}")
-
-
-    # Fine tune the model on the provided documents one at a time.
-    for doc_id, text in documents.items():
-        model_save_path = os.path.join(MODEL_DIR, doc_id, "model")
-        trainer.fine_tune_document(document_text=text, doc_id=doc_id, model_save_path=model_save_path, num_epochs=1, batch_size=1)
-
-    # Generate the final combined document
-    combined_document = trainer.generate_combined_document(documents)
-    print("Combined Document:")
-    print(combined_document)
+    main()
