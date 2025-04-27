@@ -35,3 +35,9 @@ SEQ2SEQ_TRAINING_ARGS = {
     "num_train_epochs": 3,
     "predict_with_generate": True,
 }
+
+# Azure environment setup
+AZURE_OPENAI_ENDPOINT = "https://<your-openai-endpoint>.openai.azure.com/"
+AZURE_OPENAI_DEPLOYMENT = "<your-deployment-name>"  # Azure OpenAI deployment name
+AZURE_STORAGE_CONNECTION_STRING = "<your-storage-connection-string>"
+CONTAINER_NAME = "essays"

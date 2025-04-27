@@ -3,18 +3,13 @@ import os
 import json
 import time
 from azure.identity import DefaultAzureCredential
-from azure.ai.openai import OpenAIClient
 from azure.storage.blob import BlobServiceClient
-
-# Azure environment setup
-AZURE_OPENAI_ENDPOINT = "https://<your-openai-endpoint>.openai.azure.com/"
-AZURE_OPENAI_DEPLOYMENT = "<your-deployment-name>" # Azure OpenAI deployment name
-AZURE_STORAGE_CONNECTION_STRING = "<your-storage-connection-string>"
-CONTAINER_NAME = "essays"
+from config import AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT, AZURE_STORAGE_CONNECTION_STRING, CONTAINER_NAME
+from openai import AzureOpenAI
 
 # Initialize Azure clients
 credential = DefaultAzureCredential()
-openai_client = OpenAIClient(endpoint=AZURE_OPENAI_ENDPOINT, credential=credential)
+openai_client = AzureOpenAI(endpoint=AZURE_OPENAI_ENDPOINT, credential=credential)
 blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
 container_client = blob_service_client.get_container_client(CONTAINER_NAME)
 
