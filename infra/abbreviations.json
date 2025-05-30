@@ -1,0 +1,9 @@
+{
+  "storageStorageAccounts": "st",
+  "keyVaultVaults": "kv",
+  "operationalInsightsWorkspaces": "log",
+  "insightsComponents": "appi",
+  "webServerFarms": "plan",
+  "webSitesFunctions": "func",
+  "managedIdentityUserAssignedIdentities": "id"
+}

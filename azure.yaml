@@ -1,0 +1,54 @@
+# Azure Developer CLI configuration for FineTunedLLM serverless deployment
+name: finetuned-llm
+metadata:
+  template: finetuned-llm-serverless@0.0.1-beta
+  description: Domain-specific fine-tuned LLM with adaptive summarization and fine-tuning pipelines
+
+# Define the services that will be deployed
+services:
+  # Summarization pipeline Azure Function
+  summarization-pipeline:
+    project: ./azure-functions/summarization-pipeline
+    language: python
+    host: function
+    
+  # Fine-tuning pipeline Azure Function  
+  finetuning-pipeline:
+    project: ./azure-functions/finetuning-pipeline
+    language: python
+    host: function
+
+# Infrastructure configuration
+infra:
+  provider: bicep
+  path: ./infra
+
+# Hooks for deployment lifecycle
+hooks:
+  preprovision:
+    windows:
+      - echo "Starting infrastructure provisioning..."
+    posix:
+      - echo "Starting infrastructure provisioning..."
+      
+  postprovision:
+    windows:
+      - echo "Infrastructure provisioned successfully"
+    posix:
+      - echo "Infrastructure provisioned successfully"
+      
+  predeploy:
+    windows:
+      - echo "Preparing function deployments..."
+    posix:
+      - echo "Preparing function deployments..."
+      
+  postdeploy:
+    windows:
+      - echo "Deployment completed successfully"
+      - echo "Summarization Function: $(azd env get-values --output json | jq -r .SUMMARIZATION_FUNCTION_URL)"
+      - echo "Fine-tuning Function: $(azd env get-values --output json | jq -r .FINETUNING_FUNCTION_URL)"
+    posix:
+      - echo "Deployment completed successfully"
+      - echo "Summarization Function: $(azd env get-values --output json | jq -r .SUMMARIZATION_FUNCTION_URL)"
+      - echo "Fine-tuning Function: $(azd env get-values --output json | jq -r .FINETUNING_FUNCTION_URL)"

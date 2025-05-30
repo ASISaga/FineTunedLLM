@@ -41,3 +41,9 @@ AZURE_OPENAI_ENDPOINT = "https://<your-openai-endpoint>.openai.azure.com/"
 AZURE_OPENAI_DEPLOYMENT = "<your-deployment-name>"  # Azure OpenAI deployment name
 AZURE_STORAGE_CONNECTION_STRING = "<your-storage-connection-string>"
 CONTAINER_NAME = "essays"
+
+# Anthropic Claude API configuration
+ANTHROPIC_API_KEY = "<your-anthropic-api-key>"  # Anthropic API key for Claude access
+CLAUDE_MODEL = "claude-3-5-sonnet-20241022"  # Claude Sonnet 4 model identifier
+CLAUDE_MAX_TOKENS = 4096  # Maximum tokens for Claude response
+CLAUDE_TEMPERATURE = 0.1  # Temperature for Claude responses (lower = more focused)
