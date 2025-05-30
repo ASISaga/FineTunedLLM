@@ -1,6 +1,15 @@
 # FineTunedLLM Azure Deployment Guide
 
-This guide provides instructions for deploying the FineTunedLLM serverless pipeline to Azure using Infrastructure as Code (IaC).
+This guide provides instructions for deploying the enhanced FineTunedLLM serverless pipeline with **domain-specific context** support to Azure using Infrastructure as Code (IaC).
+
+## Overview
+
+The FineTunedLLM system now features:
+- **Domain-Aware Summarization** - Claude Sonnet 4 with specialized domain prompts
+- **Domain-Specific Fine-Tuning** - OpenAI GPT models optimized for specific domains
+- **Automatic Domain Detection** - Intelligent domain classification from filenames
+- **Multi-Domain Support** - Technical, Medical, Legal, and Financial domains
+- **Serverless Architecture** - Auto-scaling Azure Functions for cost efficiency
 
 ## Prerequisites
 
@@ -9,14 +18,42 @@ This guide provides instructions for deploying the FineTunedLLM serverless pipel
 3. **Azure Subscription** - Active Azure subscription with appropriate permissions
 4. **API Keys** - OpenAI API key and Anthropic API key
 
+### Install Azure Developer CLI
+
+**Windows (PowerShell):**
+```powershell
+# Using PowerShell
+Invoke-RestMethod 'https://aka.ms/install-azd.ps1' | Invoke-Expression
+```
+
+**Windows (Winget):**
+```bash
+winget install microsoft.azd
+```
+
+**Verify Installation:**
+```bash
+azd version
+```
+
 ## Architecture Overview
 
-The deployment creates:
+The deployment creates a comprehensive serverless pipeline:
 - **Storage Account** - Blob storage for documents, summaries, and training data
 - **Key Vault** - Secure storage for API keys and secrets
-- **Function Apps** - Serverless compute for summarization and fine-tuning pipelines
-- **Application Insights** - Monitoring and logging
+- **Function Apps** - Two serverless applications:
+  - **Summarization Pipeline** - Domain-aware text processing with Claude Sonnet 4
+  - **Fine-Tuning Pipeline** - Domain-specific model training with OpenAI
+- **Application Insights** - Monitoring and logging with domain-specific metrics
 - **Managed Identity** - Secure access between Azure services
+
+### Domain Support
+
+The system supports four predefined domains:
+- **Technical** - Software, APIs, system architecture
+- **Medical** - Healthcare, clinical, pharmaceutical content
+- **Legal** - Contracts, compliance, regulatory content  
+- **Financial** - Banking, investment, economic analysis
 
 ## Deployment Steps
 
@@ -104,31 +141,102 @@ After deployment, you'll have these endpoints:
 
 ## Usage Examples
 
-### Upload Document for Processing
+### Domain-Aware Document Processing
+
+#### Upload Documents with Domain Context
 
 ```bash
-# Upload a document to trigger summarization
+# Technical document
 az storage blob upload \
   --account-name {storage-account-name} \
   --container-name input-documents \
-  --name "document.pdf" \
-  --file "./local-document.pdf"
+  --name "technical_api_documentation.pdf" \
+  --file "./api-docs.pdf"
+
+# Medical document  
+az storage blob upload \
+  --account-name {storage-account-name} \
+  --container-name input-documents \
+  --name "medical_clinical_study.pdf" \
+  --file "./clinical-study.pdf"
 ```
 
-### Manual Document Processing
+#### Manual Processing with Domain Specification
 
 ```bash
-curl -X POST "https://{summarization-function-url}/api/process-document" \
+# Process with specific domain context
+curl -X POST "https://{summarization-function-url}/api/process" \
   -H "Content-Type: application/json" \
-  -d '{"blob_name": "document.pdf", "domain_context": "technical"}'
+  -d '{
+    "blob_name": "document.pdf", 
+    "domain_context": "technical",
+    "focus_areas": ["API design", "performance optimization"]
+  }'
+
+# Batch processing with domain mapping
+curl -X POST "https://{summarization-function-url}/api/batch-process" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "files": ["tech_doc1.pdf", "medical_doc1.pdf"],
+    "domain_mapping": {
+      "tech_doc1.pdf": "technical",
+      "medical_doc1.pdf": "medical"
+    }
+  }'
 ```
 
-### Start Fine-tuning Job
+### Domain-Specific Fine-Tuning
+
+#### Start Domain-Aware Fine-Tuning
 
 ```bash
-curl -X POST "https://{finetuning-function-url}/api/start-training" \
+# Fine-tune for technical domain
+curl -X POST "https://{finetuning-function-url}/api/start-finetuning" \
   -H "Content-Type: application/json" \
-  -d '{"model_name": "domain-specific-model", "training_data_path": "training-data/dataset.jsonl"}'
+  -d '{
+    "training_file_blob": "technical_training_data.jsonl",
+    "domain": "technical",
+    "model": "gpt-3.5-turbo",
+    "suffix": "tech-specialist"
+  }'
+
+# Batch fine-tuning for multiple domains
+curl -X POST "https://{finetuning-function-url}/api/batch-process" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "training_files": [
+      "technical_training_data.jsonl",
+      "medical_training_data.jsonl"
+    ],
+    "domain_mapping": {
+      "technical_training_data.jsonl": "technical",
+      "medical_training_data.jsonl": "medical"
+    },
+    "model": "gpt-3.5-turbo"
+  }'
+```
+
+#### Monitor Domain-Specific Training
+
+```bash
+# Check training job status
+curl "https://{finetuning-function-url}/api/check-status/{job_id}"
+
+# Get domain training progress
+curl "https://{finetuning-function-url}/api/domain-progress/technical"
+
+# List available domains
+curl "https://{finetuning-function-url}/api/domains"
+```
+
+### Health Checks
+
+```bash
+# Check summarization pipeline health
+curl "https://{summarization-function-url}/api/health"
+
+# Check fine-tuning pipeline health
+curl "https://{finetuning-function-url}/api/health"
 ```
 
 ## Monitoring and Troubleshooting

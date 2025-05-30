@@ -1,5 +1,7 @@
 azure-functions
 azure-storage-blob
 azure-identity
+azure-keyvault-secrets
 openai
 typing-extensions
+anthropic>=0.23.0

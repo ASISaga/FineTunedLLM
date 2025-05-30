@@ -1,30 +1,74 @@
-# Azure Function for Summarization Pipeline
+# Azure Function for Summarization Pipeline with Domain Context Support
 import logging
 import json
 import os
+import sys
 import azure.functions as func
 from azure.storage.blob import BlobServiceClient
 from azure.identity import DefaultAzureCredential
+from azure.keyvault.secrets import SecretClient
 import anthropic
-from typing import Optional
+from typing import Optional, Dict, Any
+from datetime import datetime
+
+# Add the KnowledgeModel directory to the path for imports
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'KnowledgeModel'))
+
+try:
+    from DomainContextManager import DomainContextManager
+    from AbstractiveSummarizer import AbstractiveSummarizer
+except ImportError:
+    # Fallback for when modules are not available
+    DomainContextManager = None
+    AbstractiveSummarizer = None
 
 # Initialize function app
 app = func.FunctionApp()
 
 # Configuration from environment variables
-ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
+KEY_VAULT_URL = os.environ.get("KEY_VAULT_URL")
+AZURE_CLIENT_ID = os.environ.get("AZURE_CLIENT_ID")
 CLAUDE_MODEL = os.environ.get("CLAUDE_MODEL", "claude-3-5-sonnet-20241022")
-AZURE_STORAGE_CONNECTION_STRING = os.environ.get("AZURE_STORAGE_CONNECTION_STRING")
-INPUT_CONTAINER = os.environ.get("INPUT_CONTAINER", "raw-documents")
-OUTPUT_CONTAINER = os.environ.get("OUTPUT_CONTAINER", "processed-summaries")
+STORAGE_ACCOUNT_NAME = os.environ.get("STORAGE_ACCOUNT_NAME")
+INPUT_CONTAINER = os.environ.get("INPUT_CONTAINER", "input-documents")
+SUMMARY_CONTAINER = os.environ.get("SUMMARY_CONTAINER", "summaries")
 
-# Initialize clients
-anthropic_client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-credential = DefaultAzureCredential()
-blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
+# Initialize Azure clients
+credential = DefaultAzureCredential(managed_identity_client_id=AZURE_CLIENT_ID)
+
+# Initialize Key Vault client for secret retrieval
+if KEY_VAULT_URL:
+    kv_client = SecretClient(vault_url=KEY_VAULT_URL, credential=credential)
+else:
+    kv_client = None
+
+# Initialize storage client
+if STORAGE_ACCOUNT_NAME:
+    blob_service_client = BlobServiceClient(
+        account_url=f"https://{STORAGE_ACCOUNT_NAME}.blob.core.windows.net",
+        credential=credential
+    )
+else:
+    blob_service_client = None
+
+# Initialize domain-aware summarizer
+domain_manager = DomainContextManager() if DomainContextManager else None
 
 
-class ClaudeSummarizer:
+def get_secret(secret_name: str) -> Optional[str]:
+    """Retrieve secret from Azure Key Vault"""
+    if not kv_client:
+        return os.environ.get(secret_name.upper().replace('-', '_'))
+    
+    try:
+        secret = kv_client.get_secret(secret_name)
+        return secret.value
+    except Exception as e:
+        logging.error(f"Failed to retrieve secret {secret_name}: {str(e)}")
+        return None
+
+
+class DomainAwareSummarizer:
     """
     Claude-based text summarization for serverless deployment.
     """
