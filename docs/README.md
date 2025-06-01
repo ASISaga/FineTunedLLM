@@ -1,32 +1,106 @@
-# FineTunedLLM
+# FineTunedLLM Documentation Hub
 
-pip install transformers torch peft
+This directory contains comprehensive documentation for the FineTunedLLM system - a sophisticated domain-aware fine-tuning pipeline that combines Amazon Bedrock's Claude Sonnet 4 with Azure OpenAI's GPT-4.
 
-## Fine-Tuning and Model Deployment
+## 📚 Documentation Structure
 
-This repository implements the fine-tuning and model deployment process for the multi-agent system. Follow these steps to prepare and deploy your domain-specific models:
+| Document | Purpose | Audience |
+|----------|---------|----------|
+| [🛠️ SETUP.md](SETUP.md) | Environment configuration and API setup | Developers, DevOps |
+| [📖 Implementation.md](Implementation.md) | Technical architecture and code structure | Developers, Architects |
+| [🚀 DEPLOYMENT.md](DEPLOYMENT.md) | Azure serverless deployment instructions | DevOps, Platform Engineers |
+| [🔧 API.md](API.md) | Complete API documentation | Developers, Integrators |
 
-### Initialize Setup
-- Ensure you have an active Azure OpenAI Service subscription with the necessary permissions to create and manage resources.
-- Log in to the Azure portal and navigate to the OpenAI resource section.
-- Create a new workspace or select an existing one to organize your training jobs, datasets, and model deployments.
-- Set up access credentials (API keys, service principals) and securely store them for later integration.
+## 🎯 Getting Started
 
-### Prepare Data
-- Gather domain-specific data relevant to your use case (e.g., customer support logs, technical documentation, chat transcripts).
-- Clean the data by removing duplicates, correcting errors, and standardizing formats.
-- Annotate or label the data if supervised learning is required.
-- Split the dataset into training, validation, and test sets to ensure robust model evaluation and prevent overfitting.
+### For New Users
+1. **Start here**: [SETUP.md](SETUP.md) - Configure your environment and API credentials
+2. **Understand the system**: [Implementation.md](Implementation.md) - Learn the architecture and design patterns
+3. **Integration guide**: [API.md](API.md) - Explore the Python SDK and HTTP endpoints
 
-### Fine-Tuning Process
-- Choose a base model from Azure OpenAI’s available options (e.g., GPT-3, GPT-4, etc.) that best fits your domain and task complexity.
-- Configure the fine-tuning job by specifying hyperparameters such as learning rate, number of epochs, and batch size.
-- Upload your prepared dataset to the workspace and initiate the fine-tuning process.
-- Monitor training metrics (loss, accuracy, etc.) in real-time, adjusting parameters as needed to optimize performance.
-- Evaluate the model on the validation set after each epoch, and iterate on the process until the model meets your domain-specific benchmarks.
+### For Deployment Teams
+1. **Prerequisites**: [SETUP.md](SETUP.md) - Ensure all requirements are met
+2. **Deploy infrastructure**: [DEPLOYMENT.md](DEPLOYMENT.md) - Step-by-step Azure deployment
+3. **Verify deployment**: [API.md](API.md) - Test endpoints and functionality
 
-### Publish the Fine-Tuned Model
-- Once the model achieves satisfactory performance, publish it as a managed endpoint using Azure OpenAI Service.
-- Configure endpoint security, including authentication and authorization policies.
-- Document the endpoint URL, required headers, authentication keys, and any usage quotas or rate limits.
-- Record model performance metrics and versioning information for future reference and integration.
+## 🏗️ System Overview
+
+The FineTunedLLM system implements a hybrid cloud architecture that leverages the strengths of multiple AI services:
+
+### 🔄 Hybrid Architecture
+- **Amazon Bedrock**: Claude Sonnet 4 for intelligent training data generation
+- **Azure OpenAI**: GPT-4 for domain-specific model fine-tuning  
+- **Azure Functions**: Serverless orchestration and scaling
+- **Azure Storage**: Document and model artifact management
+
+### 🎯 Domain Specialization
+
+The system supports four key domains with specialized processing:
+
+| Domain | Focus Areas | Use Cases |
+|--------|-------------|-----------|
+| **Technical** | APIs, architecture, performance | Code docs, technical specs, system guides |
+| **Medical** | Clinical, pharmaceutical, research | Medical protocols, research papers, clinical notes |
+| **Legal** | Contracts, compliance, regulatory | Legal documents, compliance guides, contract analysis |
+| **Financial** | Banking, investment, risk analysis | Financial reports, investment research, risk assessment |
+
+## 🚀 Quick Start Examples
+
+### Basic Python Usage
+
+```python
+from KnowledgeModel.DomainAwareTrainerBedrock import DomainAwareTrainer, FineTuningConfig
+
+# Initialize trainer with credentials
+trainer = DomainAwareTrainer(
+    api_key="your-openai-key",
+    aws_access_key_id="your-aws-key",
+    aws_secret_access_key="your-aws-secret",
+    aws_region="us-east-1"
+)
+
+# Prepare domain documents
+documents = [
+    "Your technical documentation content...",
+    "API reference materials...",
+    "System architecture descriptions..."
+]
+
+# Configure fine-tuning parameters
+config = FineTuningConfig(
+    model="gpt-4-turbo-2024-04-09",
+    n_epochs=3,
+    batch_size=4,
+    suffix="technical-v1"
+)
+
+# Execute complete pipeline
+job_id = trainer.run_complete_training_pipeline(
+    text_documents=documents,
+    domain_name="technical",
+    config=config
+)
+
+print(f"Fine-tuning job started: {job_id}")
+```
+
+### Azure Functions Deployment
+
+```powershell
+# Quick deployment to Azure
+azd up
+
+# Monitor deployment
+azd logs --follow
+```
+
+## 🆘 Support & Resources
+
+- **🐛 Issues**: Report bugs and feature requests via GitHub Issues
+- **📚 Documentation**: Check the individual documentation files linked above
+- **💡 Examples**: See [KnowledgeModel/example_usage.py](../KnowledgeModel/example_usage.py) for usage examples
+- **🛠️ Troubleshooting**: Refer to [SETUP.md](SETUP.md#troubleshooting) for common issues
+
+---
+
+*For the most up-to-date information and examples, always refer to the individual documentation files linked above.*
