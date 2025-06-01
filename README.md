@@ -1,32 +1,34 @@
 # FineTunedLLM
 
-pip install transformers torch peft
+A domain-aware fine-tuning system that uses **Claude Sonnet 4** via Amazon Bedrock for JSONL generation and **OpenAI GPT-4.1** for fine-tuning.
 
-## Fine-Tuning and Model Deployment
+## Features
 
-This repository implements the fine-tuning and model deployment process for the multi-agent system. Follow these steps to prepare and deploy your domain-specific models:
+- **Hybrid Cloud Architecture**: Amazon Bedrock for Claude access + Azure OpenAI for fine-tuning
+- **Domain-Aware Training**: Specialized prompts for Technical, Medical, Legal, and Financial domains
+- **Automated Pipeline**: End-to-end training data generation and model fine-tuning
+- **Serverless Deployment**: Azure Functions for scalable processing
 
-### Initialize Setup
-- Ensure you have an active Azure OpenAI Service subscription with the necessary permissions to create and manage resources.
-- Log in to the Azure portal and navigate to the OpenAI resource section.
-- Create a new workspace or select an existing one to organize your training jobs, datasets, and model deployments.
-- Set up access credentials (API keys, service principals) and securely store them for later integration.
+## Quick Start
 
-### Prepare Data
-- Gather domain-specific data relevant to your use case (e.g., customer support logs, technical documentation, chat transcripts).
-- Clean the data by removing duplicates, correcting errors, and standardizing formats.
-- Annotate or label the data if supervised learning is required.
-- Split the dataset into training, validation, and test sets to ensure robust model evaluation and prevent overfitting.
+1. **Setup**: Follow the [Setup Guide](docs/SETUP.md) to configure AWS Bedrock and Azure OpenAI
+2. **Implementation**: See [Implementation Guide](docs/Implementation.md) for technical details
+3. **Deployment**: Use the [Deployment Guide](docs/DEPLOYMENT.md) for Azure deployment
 
-### Fine-Tuning Process
-- Choose a base model from Azure OpenAI’s available options (e.g., GPT-3, GPT-4, etc.) that best fits your domain and task complexity.
-- Configure the fine-tuning job by specifying hyperparameters such as learning rate, number of epochs, and batch size.
-- Upload your prepared dataset to the workspace and initiate the fine-tuning process.
-- Monitor training metrics (loss, accuracy, etc.) in real-time, adjusting parameters as needed to optimize performance.
-- Evaluate the model on the validation set after each epoch, and iterate on the process until the model meets your domain-specific benchmarks.
+## Documentation
 
-### Publish the Fine-Tuned Model
-- Once the model achieves satisfactory performance, publish it as a managed endpoint using Azure OpenAI Service.
-- Configure endpoint security, including authentication and authorization policies.
-- Document the endpoint URL, required headers, authentication keys, and any usage quotas or rate limits.
-- Record model performance metrics and versioning information for future reference and integration.
+- [📖 Implementation Guide](docs/Implementation.md) - Technical architecture and implementation details
+- [🛠️ Setup Guide](docs/SETUP.md) - Step-by-step configuration instructions
+- [🚀 Deployment Guide](docs/DEPLOYMENT.md) - Azure deployment instructions
+- [📚 README](docs/README.md) - Comprehensive project overview
+
+## Dependencies
+
+Install required packages:
+```bash
+pip install -r requirements.txt
+```
+
+## License
+
+See [LICENSE](LICENSE) file for details.

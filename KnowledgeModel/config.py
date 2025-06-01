@@ -39,8 +39,13 @@ SEQ2SEQ_TRAINING_ARGS = {
 # Azure environment setup
 AZURE_OPENAI_ENDPOINT = "https://<your-openai-endpoint>.openai.azure.com/"
 AZURE_OPENAI_DEPLOYMENT = "<your-deployment-name>"  # Azure OpenAI deployment name
+AZURE_OPENAI_GPT4_DEPLOYMENT = "<your-gpt4-deployment-name>"  # GPT-4 deployment for fine-tuning
 AZURE_STORAGE_CONNECTION_STRING = "<your-storage-connection-string>"
 CONTAINER_NAME = "essays"
+
+# Fine-tuning model configuration
+FINETUNING_BASE_MODEL = "gpt-4o-2024-11-20"  # Updated to GPT-4.1 for fine-tuning
+JSONL_GENERATION_MODEL = "claude-3-5-sonnet-20241022"  # Claude Sonnet 4 for JSONL generation
 
 # Anthropic Claude API configuration
 ANTHROPIC_API_KEY = "<your-anthropic-api-key>"  # Anthropic API key for Claude access

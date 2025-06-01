@@ -200,9 +200,8 @@ class DomainAwareFineTuningOrchestrator:
     def __init__(self, openai_client: AzureOpenAI):
         self.client = openai_client
         self.domain_manager = domain_manager
-    
-    def create_domain_fine_tuning_job(self, training_file_id: str, domain_name: Optional[str] = None, 
-                                    model: str = "gpt-3.5-turbo", custom_suffix: Optional[str] = None) -> str:
+      def create_domain_fine_tuning_job(self, training_file_id: str, domain_name: Optional[str] = None, 
+                                    model: str = "gpt-4", custom_suffix: Optional[str] = None) -> str:
         """
         Create a domain-aware fine-tuning job with Azure OpenAI.
         """
@@ -396,7 +395,7 @@ def start_fine_tuning(req: func.HttpRequest) -> func.HttpResponse:
     try:
         req_body = req.get_json()
         training_file_blob = req_body.get('training_file_blob')
-        model_name = req_body.get('model', 'gpt-3.5-turbo')
+        model_name = req_body.get('model', 'gpt-4')  # Changed default to GPT-4
         domain_name = req_body.get('domain')
         custom_suffix = req_body.get('suffix')
         
@@ -567,11 +566,10 @@ def batch_process_training_data(req: func.HttpRequest) -> func.HttpResponse:
     """
     HTTP trigger to process multiple training files with domain context.
     """
-    try:
-        req_body = req.get_json()
+    try:        req_body = req.get_json()
         training_files = req_body.get('training_files', [])
         domain_mapping = req_body.get('domain_mapping', {})
-        model_name = req_body.get('model', 'gpt-3.5-turbo')
+        model_name = req_body.get('model', 'gpt-4')  # Changed default to GPT-4
         
         if not training_files:
             return func.HttpResponse(
