@@ -3,8 +3,8 @@ import time
 import logging
 from typing import Optional, Dict, Any
 import anthropic
-from config import ANTHROPIC_API_KEY, CLAUDE_MODEL, CLAUDE_MAX_TOKENS, CLAUDE_TEMPERATURE
-from DomainContextManager import DomainContextManager
+from ..shared.config import ANTHROPIC_API_KEY, CLAUDE_MODEL, CLAUDE_MAX_TOKENS, CLAUDE_TEMPERATURE
+from ..domain_knowledge_system.DomainContextManager import DomainContextManager
 
 logger = logging.getLogger(__name__)
 
@@ -65,11 +65,10 @@ class AbstractiveSummarizer:
                 system=system_prompt,
                 messages=[
                     {"role": "user", "content": user_prompt}
-                ]
-            )
+                ]            )
             
             return response.content[0].text.strip()
-              except anthropic.APIError as e:
+        except anthropic.APIError as e:
             logger.error(f"Claude API error: {e}")
             raise
         except Exception as e:

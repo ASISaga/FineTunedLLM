@@ -61,7 +61,7 @@ def check_environment_variables():
 def test_imports():
     """Test importing the main classes."""
     try:
-        from DomainAwareTrainerBedrock import DomainAwareTrainer, FineTuningConfig
+        from ..finetuning_pipeline.DomainAwareTrainerBedrock import DomainAwareTrainer, FineTuningConfig
         logger.info("✓ Successfully imported DomainAwareTrainer and FineTuningConfig")
         return True
     except ImportError as e:
@@ -71,7 +71,7 @@ def test_imports():
 def test_configuration():
     """Test configuration setup."""
     try:
-        from DomainAwareTrainerBedrock import FineTuningConfig
+        from ..finetuning_pipeline.DomainAwareTrainerBedrock import FineTuningConfig
         
         # Test default configuration
         config = FineTuningConfig()
