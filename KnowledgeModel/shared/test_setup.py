@@ -27,7 +27,7 @@ def check_dependencies():
     
     if missing_packages:
         logger.error(f"Missing packages: {', '.join(missing_packages)}")
-        logger.error("Run: pip install -r requirements.txt")
+    logger.error("Run: pip install .")
         return False
     
     return True

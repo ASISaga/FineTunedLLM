@@ -56,7 +56,7 @@ git clone <repository-url>
 cd FineTunedLLM
 
 # Install dependencies
-pip install -r requirements.txt
+pip install .
 
 # Copy configuration template
 Copy-Item KnowledgeModel\config_template.py KnowledgeModel\config_local.py
