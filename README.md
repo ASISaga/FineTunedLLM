@@ -1,5 +1,16 @@
 # FineTunedLLM
 
+## Cross-Domain ML/LLM Provider
+
+FineTunedLLM is the shared, cross-domain machine learning and large language model (LLM) pipeline for the entire ASISaga ecosystem. All domains—including BusinessInfinity—leverage FineTunedLLM for domain-specific model training, inference, and LLM-powered features. No individual domain implements its own ML pipeline; instead, they depend on FineTunedLLM for scalable, reusable, and maintainable ML/LLM capabilities.
+
+This architecture ensures:
+- Centralized management of ML/LLM resources and expertise
+- Consistent, high-quality models across all domains
+- Elimination of redundant ML code in individual domains
+
+For integration details, see the usage and API documentation below.
+
 A sophisticated domain-aware fine-tuning system that combines **Claude Sonnet 4** via Amazon Bedrock for intelligent training data generation with **Azure OpenAI GPT-4** for specialized model fine-tuning.
 
 ## 🚀 Overview
