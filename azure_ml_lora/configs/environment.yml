@@ -1,0 +1,10 @@
+name: lora-env
+dependencies:
+  - python=3.10
+  - pip:
+      - torch~=2.0
+      - transformers~=4.35
+      - accelerate~=0.20
+      - peft~=0.4
+      - datasets
+      - azureml-core

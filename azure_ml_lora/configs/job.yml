@@ -1,0 +1,12 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
+type: command
+compute: lora-cluster
+environment: lora-env:1
+code: .
+command: >
+  python train_lora.py
+outputs:
+  - name: qv_adapter
+    path: outputs/lora_qv
+  - name: ko_adapter
+    path: outputs/lora_ko
