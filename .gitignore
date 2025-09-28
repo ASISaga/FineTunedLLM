@@ -1,4 +1,4 @@
 # Ignore Python egg-info metadata
-.egg-info/
+*.egg-info/
 # Ignore Python bytecode cache directories
 __pycache__/
